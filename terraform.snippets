@@ -169,6 +169,7 @@ snippet provider_aws
 
 	${6}
 
+# EC2
 snippet aws_ami
 	resource "aws_ami" "${1}" {
 	  name                = "${2}"
@@ -298,6 +299,65 @@ snippet aws_iam_access_key
 
 	${3}
 
+snippet aws_iam_account_password_policy
+	resource "aws_iam_account_password_policy" "${1}" {
+	  allow_users_to_change_password = "${2}"
+	  hard_expiry                    = "${3}"
+	  max_password_age               = "${4}"
+	  minimum_password_length        = "${5}"
+	  password_reuse_prevention      = "${6}"
+	  require_lowercase_characters   = "${7}"
+	  require_numbers                = "${8}"
+	  require_symbols                = "${9}"
+	  require_uppercase_characters   = "${10}"
+	}
+
+	${11}
+
+snippet aws_iam_group
+	resource "aws_iam_group" "${1}" {
+	  name = "${2}"
+	  path = "${3}"
+	}
+
+	${4}
+
+snippet aws_iam_group_membership
+	resource "aws_iam_group_membership" "${1}" {
+	  name  = "${2}"
+	  users = "${3}"
+	  group = "${4}"
+	}
+
+	${5}
+
+snippet aws_iam_group_policy
+	resource "aws_iam_group_policy" "${1}" {
+	  policy = "${2}"
+	  name   = "${3}"
+	  group  = "${4}"
+	}
+
+	${5}
+
+snippet aws_iam_group_policy_attachment
+	resource "aws_iam_group_policy_attachment" "${1}" {
+	  group      = "${2}"
+	  policy_arn = "${3}"
+	}
+
+	${4}
+
+snippet aws_iam_instance_profile
+	resource "aws_iam_instance_profile" "${1}" {
+	  name        = "${2}"
+	  name_prefix = "${3}"
+	  path        = "${4}"
+	  roles       = ["${5}"]
+	}
+
+	${5}
+
 snippet aws_iam_policy
 	resource "aws_iam_policy" "${1}" {
 	  description = "${2}"
@@ -345,3 +405,70 @@ snippet aws_iam_role_policy_attachment
 	}
 
 	${4}
+
+snippet aws_iam_saml_provider
+	resource "aws_iam_saml_provider" "${1}" {
+	  name                   = "${2}"
+	  saml_metadata_document = "${file("${3}.xml")}"
+	}
+
+	${4}
+
+snippet aws_iam_server_certificate
+	resource "aws_iam_server_certificate" "${1}" {
+	  name             = "${2}"
+	  certificate_body = "${file("${3:cert.pem}")}"
+	  private_key      = "${file("${4:key.pem}")}"
+	}
+
+	${5}
+
+snippet aws_iam_user
+	resource "aws_iam_user" "${1}" {
+	  name          = "${2}"
+	  path          = "${3}"
+	  force_destroy = "${4}"
+	}
+
+	${4}
+
+snippet aws_iam_user_policy
+	resource "aws_iam_user_policy" "${1}" {
+	  name = "${2}"
+	  user = "${3}"
+	      policy = <<EOF
+	{
+	  "Version": "2012-10-17",
+	  "Statement": [
+		{
+		  "Action": [
+			"${4:ec2:Describe*}"
+		  ],
+		  "Effect": "${5:Allow}",
+		  "Resource": "*"
+		}
+	  ]
+	}
+	EOF
+	}
+
+	${6}
+
+snippet aws_iam_user_policy_attachment
+	resource "aws_iam_user_policy_attachment" "${1}" {
+	  user       = "${2}"
+	  policy_arn = "${2}"
+	}
+
+	${4}
+
+snippet aws_iam_user_ssh_key
+	resource "aws_iam_user_ssh_key" "${1}" {
+	  username   = "${2}"
+	  encoding   = "${3}" # 'PEM' or 'SSH'
+	  public_key = "${4}"
+	  status     = "${5}"
+	}
+
+	${6}
+
