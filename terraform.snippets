@@ -28,7 +28,55 @@ snippet resource
 	  }
 	}
 
-# AWS Provider
+snippet output
+	output "${1}" {
+	  value = "${2}"
+	}
+
+	${3}
+
+## Remote state - https://www.terraform.io/docs/state/remote/index.html
+snippet remote_state_atlas
+	resource "terraform_remote_state" "${1}" {
+	  backend = "atlas"
+	  config {
+	    name         = "${2}"
+	    access_token = "${3}"
+	  }
+	}
+	${4}
+
+snippet remote_state_s3
+	resource "terraform_remote_state" "foo" {
+	  backend = "s3"
+	  config {
+	    bucket = "${1}"
+	    key    = "network/terraform.tfstate"
+	    region = "${2}"
+	  }
+	}
+	${3}
+
+snippet provider_atlas
+	provider "atlas" {
+	  token = "${var.atlas_token}"
+	}
+	${1}
+
+snippet atlas_artifact
+	resource "atlas_artifact" "${1}" {
+	  name          = "${2}"
+	  type          = "${3}"
+	  build         = "${4}"
+	  version       = "${5}"
+	  metadata_keys = "${6}"
+	  metadata {
+	    arch = "${7}"
+	  }
+	}
+	${8}
+
+## AWS Provider
 
 ## Data Sources
 snippet aws_ami
@@ -49,56 +97,67 @@ snippet aws_ami
 snippet aws_availability_zones
 	data "aws_availability_zones" "${1:available}" {}
 
-snippet s3_bucket_object
+	${2}
+
+snippet aws_caller_identity
+	data "aws_caller_identity" "${1:current}" {}
+
+	${2}
+
+snippet aws_cloudformation_stack
+	data "aws_cloudformation_stack" "${1}" {
+	  name = "$2}"
+	}
+
+	${3}
+
+snippet aws_ecs_container_definition
+	data "aws_ecs_container_definition" "${1}" {
+	  task_definition = "${aws_ecs_task_definition.${2}.id}"
+	  container_name = "${3}"
+	}
+
+	${4}
+
+snippet aws_elb_service_account
+	data "aws_elb_service_account" "${1}" {
+	  region = "${2}" # Optional
+	}
+
+	${3}
+
+snippet aws_iam_policy_document
+	data "aws_iam_policy_document" "${1}" {
+	  statement = "${2}"
+	  policy_id = "${3}"
+	}
+
+	${4}
+
+snippet aws_ip_ranges
+	data "aws_ip_ranges" "${1}" {
+	  services = [ "${2}" ]
+	  regions = [ "${3}", "${4}" ]
+	}
+
+	${5}
+
+snippet aws_redshift_service_account
+	data "aws_redshift_service_account" "${1}" {
+	  region = "${2}" # Optional
+	}
+
+	${3}
+
+snippet aws_s3_bucket_object
 	data "aws_s3_bucket_object" "${1}" {
 	  bucket = "${2}"
 	  key    = "${3}"
 	}
 
-# Remove stage
-snippet remote_state_atlas
-	# Remote atlas state
-	resource "terraform_remote_state" "${1}" {
-	  backend = "atlas"
-	  config {
-	    name         = "${2}"
-	    access_token = "${3}"
-	  }
-	}
 	${4}
 
-snippet remote_state_s3
-	# Remote S3 state
-	resource "terraform_remote_state" "foo" {
-	  backend = "s3"
-	  config {
-	    bucket = "${1}"
-	    key    = "network/terraform.tfstate"
-	    region = "${2}"
-	  }
-	}
-	${3}
-
-snippet provider_atlas
-	# Configure the Atlas provider
-	provider "atlas" {
-	  token = "${var.atlas_token}"
-	}
-	${1}
-
-snippet atlas_artifact
-	resource "atlas_artifact" "${1}" {
-	  name          = "${2}"
-	  type          = "${3}"
-	  build         = "${4}"
-	  version       = "${5}"
-	  metadata_keys = "${6}"
-	  metadata {
-	    arch = "${7}"
-	  }
-	}
-	${8}
-
+# Provider
 snippet provider_aws
 	provider "aws" {
 	  region     = "${1}"
@@ -107,6 +166,7 @@ snippet provider_aws
 	  profile    = "${4}"
 	  token      = "${5}"
 	}
+
 	${6}
 
 snippet aws_ami
@@ -285,4 +345,3 @@ snippet aws_iam_role_policy_attachment
 	}
 
 	${4}
-
