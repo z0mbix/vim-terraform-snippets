@@ -1,0 +1,288 @@
+# HashiCorp Terraform Resources
+# Snippet by: David Wooldridge <zombie@zombix.org>
+# Based on: http://terraform.io/docs/ - version 0.7.x
+
+## GLOBALS
+
+# Variable with default
+snippet variable
+	variable "${1:name}" {
+	  default = ${2}
+	}
+
+	${3}
+
+# Empty variable
+snippet variable_empty
+	variable "${1:name}" {}
+
+	${2}
+
+# Generic resource
+snippet resource
+	resource "${1:type}" "${2:name}" {
+	  ${3}
+
+	  tags {
+	    Name = "${4}"
+	  }
+	}
+
+# AWS Provider
+
+## Data Sources
+snippet aws_ami
+	data "aws_ami" "${1}" {
+	  most_recent      = ${2:true} # boolean
+	  executable_users = ["${3:self}"]
+
+	  filter {
+	    name   = "${4}"
+	    values = ["${5}"]
+	  }
+
+	  owners = ["${6}"]
+	}
+
+	${7}
+
+snippet aws_availability_zones
+	data "aws_availability_zones" "${1:available}" {}
+
+snippet s3_bucket_object
+	data "aws_s3_bucket_object" "${1}" {
+	  bucket = "${2}"
+	  key    = "${3}"
+	}
+
+# Remove stage
+snippet remote_state_atlas
+	# Remote atlas state
+	resource "terraform_remote_state" "${1}" {
+	  backend = "atlas"
+	  config {
+	    name         = "${2}"
+	    access_token = "${3}"
+	  }
+	}
+	${4}
+
+snippet remote_state_s3
+	# Remote S3 state
+	resource "terraform_remote_state" "foo" {
+	  backend = "s3"
+	  config {
+	    bucket = "${1}"
+	    key    = "network/terraform.tfstate"
+	    region = "${2}"
+	  }
+	}
+	${3}
+
+snippet provider_atlas
+	# Configure the Atlas provider
+	provider "atlas" {
+	  token = "${var.atlas_token}"
+	}
+	${1}
+
+snippet atlas_artifact
+	resource "atlas_artifact" "${1}" {
+	  name          = "${2}"
+	  type          = "${3}"
+	  build         = "${4}"
+	  version       = "${5}"
+	  metadata_keys = "${6}"
+	  metadata {
+	    arch = "${7}"
+	  }
+	}
+	${8}
+
+snippet provider_aws
+	provider "aws" {
+	  region     = "${1}"
+	  access_key = "${2}"
+	  secret_key = "${3}"
+	  profile    = "${4}"
+	  token      = "${5}"
+	}
+	${6}
+
+snippet aws_ami
+	resource "aws_ami" "${1}" {
+	  name                = "${2}"
+	  virtualization_type = "${3}"
+	  root_device_name    = "${4}"
+
+	  ebs_block_device {
+	    device_name = "${5}"
+	    snapshot_id = "${6}"
+	    volume_size = ${7}
+	  }
+	}
+
+	${8}
+
+snippet aws_ebs_volume
+	resource "aws_ebs_volume" "${1}" {
+	  availability_zone = "${2}"
+	  encrypted         = ${3}
+	  iops              = ${4}
+	  size              = ${5}
+	  snapshot_id       = "${6}"
+	  type              = "${7}" # "standard", "gp2", "io1", or "st1"
+	  kms_key_id        = "${8}"
+
+	  tags {
+	    Name = "${9}"
+	  }
+	}
+
+	${10}
+
+snippet aws_eip
+	resource "aws_eip" "${1}" {
+	  instance                  = "${aws_instance.${2}.id}"
+	  vpc                       = ${3}
+	  network_interface         = "${4}"
+	  associate_with_private_ip = "${5}"
+	}
+
+	${6}
+
+snippet aws_eip_allocation
+	resource "aws_eip_association" "${1:eip_assoc}" {
+	  instance_id   = "${aws_instance.${2}.id}"
+	  allocation_id = "${aws_eip.${3}.id}"
+	}
+
+	${4}
+
+snippet aws_elb
+	resource "aws_elb" "${1}" {
+	  name               = "${2}"
+	  availability_zones = ["${3}", "${4}", "${5}"]
+
+	  access_logs {
+	    bucket        = "${6}"
+	    bucket_prefix = "${7}"
+	    interval      = ${8}
+	  }
+
+	  listener {
+	    instance_port     = ${9}
+	    instance_protocol = "${10:http}"
+	    lb_port           = ${11:80}
+	    lb_protocol       = "${12:http}"
+	  }
+
+	  listener {
+	    instance_port      = ${13}
+	    instance_protocol  = "${14:http}"
+	    lb_port            = ${15:443}
+	    lb_protocol        = "${16:https}"
+	    ssl_certificate_id = "arn:aws:iam::${17}"
+	  }
+
+	  health_check {
+	    healthy_threshold   = ${18}
+	    unhealthy_threshold = ${19}
+	    timeout             = ${20}
+	    target              = "${21:HTTP:8000/}"
+	    interval            = ${22:30}
+	  }
+
+	  instances                   = ["${aws_instance.${23}.id}"]
+	  cross_zone_load_balancing   = ${24:true}
+	  idle_timeout                = ${25}
+	  connection_draining         = ${26:true}
+	  connection_draining_timeout = ${27}
+
+	  tags {
+	    Name = "${28}"
+	  }
+	}
+
+	${29}
+
+snippet aws_elb_attachment
+	resource "aws_elb_attachment" "${1}" {
+	  elb      = "${aws_elb.${2}.id}"
+	  instance = ["${aws_instance.${3}.id}"]
+	}
+
+	${4}
+
+snippet aws_keypair
+	resource "aws_key_pair" "${1}" {
+	  key_name   = "${2}"
+	  public_key = "${3}"
+	}
+
+	${4}
+
+snippet aws_placement_group
+	resource "aws_placement_group" "${1}" {
+	  name     = "${2}"
+	  strategy = "${3}"
+	}
+
+	${4}
+
+## IAM
+snippet aws_iam_access_key
+	resource "aws_iam_access_key" "${1}" {
+	  name = "${2}"
+	}
+
+	${3}
+
+snippet aws_iam_policy
+	resource "aws_iam_policy" "${1}" {
+	  description = "${2}"
+	  path        = "${3}"
+	  policy      = "${4}"
+	  name        = "${5}"
+	}
+
+	${6}
+
+snippet aws_iam_policy_attachment
+	resource "aws_iam_policy_attachment" "${1}" {
+	  name       = "${2}"
+	  users      = ["${3}"]
+	  roles      = ["${4}"]
+	  groups     = ["${5}"]
+	  policy_arn = "${6}"
+	}
+
+	${7}
+
+snippet aws_iam_role
+	resource "aws_iam_role" "${1}" {
+	  name               = "${2}"
+	  name_prefix        = "${3}"
+	  assume_role_policy = "${4}"
+	  path               = "${5}"
+	}
+
+	${6}
+
+snippet aws_iam_role_policy
+	resource "aws_iam_role_policy" "${1}" {
+	  name   = "${2}"
+	  policy = "${3}"
+	  role   = "${4}"
+	}
+
+	${5}
+
+snippet aws_iam_role_policy_attachment
+	resource "aws_iam_role_policy_attachment" "${1}" {
+	  role       = "${2}"
+	  policy_arn = "${3}"
+	}
+
+	${4}
+
