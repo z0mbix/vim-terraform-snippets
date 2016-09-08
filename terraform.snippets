@@ -472,3 +472,28 @@ snippet aws_iam_user_ssh_key
 
 	${6}
 
+# Directory Services
+snippet aws_directory_service_directory
+	resource "aws_directory_service_directory" "${1}" {
+	  name        = "${2}"
+	  password    = "${3}"
+	  size        = "${4}"
+	  alias       = "${5}"
+	  description = "${6}"
+	  short_name  = "${7}"
+	  enable_sso  = "${8}"
+	  type        = "${9}"
+	  vpc_settings {
+	    vpc_id     = "${10}"
+	    subnet_ids = ["${11}"]
+	  }
+	  connect_settings {
+	    vpc_id            = "${12}"
+	    subnet_ids        = ["${13}"]
+	    customer_username = "${14}"
+	    customer_dns_ips  = ["${15}"]
+	  }
+	}
+
+	${16}
+
