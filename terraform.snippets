@@ -170,21 +170,6 @@ snippet provider_aws
 	${6}
 
 # EC2
-snippet aws_ami
-	resource "aws_ami" "${1}" {
-	  name                = "${2}"
-	  virtualization_type = "${3}"
-	  root_device_name    = "${4}"
-
-	  ebs_block_device {
-	    device_name = "${5}"
-	    snapshot_id = "${6}"
-	    volume_size = ${7}
-	  }
-	}
-
-	${8}
-
 snippet aws_ebs_volume
 	resource "aws_ebs_volume" "${1}" {
 	  availability_zone = "${2}"
